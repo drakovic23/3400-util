@@ -1,0 +1,7 @@
+<RCC>
+    <qresource prefix="/icons">
+        <file>resources/icons/cloud-network.png</file>
+        <file>resources/icons/elec.png</file>
+        <file>resources/icons/natural-gas.png</file>
+    </qresource>
+</RCC>
