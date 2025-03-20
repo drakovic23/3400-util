@@ -18,11 +18,11 @@
     <item>
      <widget class="QStackedWidget" name="stackedWidget">
       <property name="currentIndex">
-       <number>2</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="page">
-       <layout class="QHBoxLayout" name="horizontalLayout_2">
-        <item>
+       <layout class="QGridLayout" name="gridLayout">
+        <item row="0" column="0">
          <widget class="QLabel" name="label">
           <property name="text">
            <string>NAT GAS WINDOW (NOT IMPLEMENTED)</string>
@@ -32,22 +32,22 @@
        </layout>
       </widget>
       <widget class="QWidget" name="page_2">
-       <layout class="QHBoxLayout" name="horizontalLayout">
-        <item>
+       <layout class="QGridLayout" name="gridLayout_2">
+        <item row="0" column="0">
          <widget class="QLabel" name="label_2">
           <property name="text">
-           <string>INTERNET SERVICE WINDOW (NOT IMPLEMENTED) -- DELETE ME</string>
+           <string>Hydro Window</string>
           </property>
          </widget>
         </item>
        </layout>
       </widget>
       <widget class="QWidget" name="page_3">
-       <layout class="QHBoxLayout" name="horizontalLayout_3">
-        <item>
-         <widget class="QLabel" name="label_3">
-          <property name="text">
-           <string>HYDRO WINDOW (NOT IMPLEMENTED OBVIOUSLY??)</string>
+       <layout class="QGridLayout" name="gridLayout_3">
+        <item row="0" column="0">
+         <widget class="QComboBox" name="comboBox">
+          <property name="placeholderText">
+           <string>Select a service</string>
           </property>
          </widget>
         </item>
@@ -118,6 +118,7 @@
   </action>
  </widget>
  <resources>
+  <include location="resources.qrc"/>
   <include location="resources.qrc"/>
  </resources>
  <connections/>
