@@ -39,3 +39,13 @@ DataProvider::DataProvider()
     this->customers = customers;
     this->providers = providers;
 }
+
+vector<Provider> DataProvider::getProviders()
+{
+    return providers;
+}
+
+map<int, Customer> DataProvider::getCustomers()
+{
+    return customers;
+}

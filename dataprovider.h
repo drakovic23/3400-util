@@ -12,7 +12,7 @@ private:
 public:
     DataProvider();
     vector<Provider> getProviders();
-    vector<Customer> getCustomers();
+    map<int, Customer> getCustomers();
 };
 
 #endif // DATAPROVIDER_H

@@ -24,6 +24,7 @@ private:
     void on_HydroTriggered();
     void on_InternetTriggered();
     void initInetWindow();
+    void updateInetDataProviders();
     DataProvider dataProvider;
 };
 #endif // MAINWINDOW_H

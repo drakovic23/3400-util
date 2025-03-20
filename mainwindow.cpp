@@ -11,18 +11,29 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    //Connect our toolbar buttons
     connect(ui->actionNatGas, &QAction::triggered, this, &MainWindow::on_NatGasTriggered);
     connect(ui->actionHydro, &QAction::triggered, this, &MainWindow::on_HydroTriggered);
     connect(ui->actionInternetService, &QAction::triggered, this, &MainWindow::on_InternetTriggered);
 
-    DataProvider mainDataProvider;
-    this->dataProvider = mainDataProvider; // Our main data provider for retrieving customers, providers etc.
+    //The main data provider for retrieving customers, providers etc.
+    DataProvider mainDataProvider{};
+    this->dataProvider = mainDataProvider;
 
+    //Initialize the internet page
+    initInetWindow();
+    //Connect the dropdown on the inet page
+    connect(ui->comboBox, &QComboBox::currentTextChanged,this, &MainWindow::updateInetDataProviders);
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
+}
+
+void MainWindow::updateInetDataProviders()
+{
+    vector<Provider> providers = dataProvider.getProviders();
 }
 
 void MainWindow::initInetWindow()
