@@ -4,7 +4,7 @@
 #include <string>
 #include <iostream>
 #include "./ui_mainwindow.h"
-#include "./.qtcreator/datahelpers.h"
+#include "./datahelpers.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
