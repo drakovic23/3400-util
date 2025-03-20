@@ -48,8 +48,6 @@ public:
         services[UtilityType::HydroSewerage] = {UtilityType::HydroSewerage, 6.0};
     }
 
-
-
 };
 
 class Bill

@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include "dataprovider.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -22,5 +23,7 @@ private:
     void on_NatGasTriggered();
     void on_HydroTriggered();
     void on_InternetTriggered();
+    void initInetWindow();
+    DataProvider dataProvider;
 };
 #endif // MAINWINDOW_H

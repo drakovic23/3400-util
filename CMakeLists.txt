@@ -25,6 +25,9 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         ${PROJECT_SOURCES}
         resources.qrc
         datahelpers.h
+        dataprovider.cpp
+        dataprovider.h
+
     )
 # Define target properties for Android with Qt 6 as:
 #    set_property(TARGET 3400-util APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR
