@@ -39,13 +39,13 @@ public:
 
     void initServices() //TODO: Overload or adjust for different rates
     {
-        services[UtilityType::NaturalGas] = {UtilityType::NaturalGas, 5.0};
-        services[UtilityType::InternetTV] = {UtilityType::InternetTV, 10.0};
-        services[UtilityType::InternetMobile] = {UtilityType::InternetMobile, 8.0};
-        services[UtilityType::InternetHomePhone] = {UtilityType::InternetHomePhone, 7.0};
-        services[UtilityType::HydroElectric] = {UtilityType::HydroElectric, 15.0};
-        services[UtilityType::HydroWater] = {UtilityType::HydroWater, 12.0};
-        services[UtilityType::HydroSewerage] = {UtilityType::HydroSewerage, 6.0};
+        services[UtilityType::NaturalGas] = {UtilityType::NaturalGas, 5.1};
+        services[UtilityType::InternetTV] = {UtilityType::InternetTV, 10.20};
+        services[UtilityType::InternetMobile] = {UtilityType::InternetMobile, 8.25};
+        services[UtilityType::InternetHomePhone] = {UtilityType::InternetHomePhone, 7.22};
+        services[UtilityType::HydroElectric] = {UtilityType::HydroElectric, 15.43};
+        services[UtilityType::HydroWater] = {UtilityType::HydroWater, 12.99};
+        services[UtilityType::HydroSewerage] = {UtilityType::HydroSewerage, 6.88};
     }
 
 };

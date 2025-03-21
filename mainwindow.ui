@@ -18,7 +18,7 @@
     <item>
      <widget class="QStackedWidget" name="stackedWidget">
       <property name="currentIndex">
-       <number>1</number>
+       <number>2</number>
       </property>
       <widget class="QWidget" name="page">
        <layout class="QGridLayout" name="gridLayout">
@@ -45,11 +45,14 @@
       <widget class="QWidget" name="page_3">
        <layout class="QGridLayout" name="gridLayout_3">
         <item row="0" column="0">
-         <widget class="QComboBox" name="comboBox">
+         <widget class="QComboBox" name="inetComboBox">
           <property name="placeholderText">
            <string>Select a service</string>
           </property>
          </widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QTableWidget" name="inetTableWidget"/>
         </item>
        </layout>
       </widget>
@@ -118,7 +121,6 @@
   </action>
  </widget>
  <resources>
-  <include location="resources.qrc"/>
   <include location="resources.qrc"/>
  </resources>
  <connections/>

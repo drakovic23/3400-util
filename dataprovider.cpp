@@ -1,9 +1,8 @@
 #include "dataprovider.h"
 
+//Default constructor generates the customer and provider information
 DataProvider::DataProvider()
 {
-
-    //This is used to generate the customer and provider information
     //Initialize our customer data
     vector<Provider> providers =
         { //TODO: Change names to something more realistic
