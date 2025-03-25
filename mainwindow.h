@@ -25,6 +25,7 @@ private:
     void on_InternetTriggered();
     void initInetWindow();
     void updateInetDataProviders();
+    void showInetCustomerContext(const QPoint &pos);
     DataProvider dataProvider;
 };
 #endif // MAINWINDOW_H
