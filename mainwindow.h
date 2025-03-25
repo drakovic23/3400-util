@@ -25,6 +25,7 @@ private:
     void on_InternetTriggered();
     void initInetWindow();
     void updateInetDataProviders();
+    void updateNatGasProviders();
     DataProvider dataProvider;
 };
 #endif // MAINWINDOW_H

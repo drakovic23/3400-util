@@ -158,10 +158,57 @@ void MainWindow::initInetWindow()
     //ui->inetServiceLabel->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
 }
 
+
+
+//NatGas section
+
+void MainWindow::updateNatGasProviders()
+{
+    vector<Provider> providers = dataProvider.getProviders();
+
+    ui->gasProviderTableWidget->setRowCount(0);
+
+    ui->gasProviderTableWidget->setColumnCount(2);
+    ui->gasProviderTableWidget->setHorizontalHeaderLabels(QStringList() << "Provider" << "Rate");
+    //add total sales later on, use qss?
+
+    for (const Provider& provider : providers)
+    {
+        //check if provider offers Natural Gas
+        if (provider.services.find(UtilityType::NaturalGas) != provider.services.end())
+        {
+
+        //get info
+        UtilityService natGasService = provider.services.at(UtilityType::NaturalGas);
+
+        //create a new row in table
+        int row = ui->gasProviderTableWidget->rowCount();
+        ui->gasProviderTableWidget->insertRow(row);
+
+        QTableWidgetItem* nameItem = new QTableWidgetItem(QString::fromStdString(provider.name));
+        QTableWidgetItem* rateItem = new QTableWidgetItem(QString("$%1").arg(natGasService.meterRate, 0, 'f', 2));
+
+
+        ui->gasProviderTableWidget->setItem(row, 0, nameItem);
+        ui->gasProviderTableWidget->setItem(row, 1, rateItem);
+
+        }
+    }
+
+    ui->gasProviderTableWidget->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+
+}
+
+
+
+//NatGas section
+
+
 //Triggers for changing the page on the stacked widget
 void MainWindow::on_NatGasTriggered()
 {
     ui->stackedWidget->setCurrentIndex(0);
+    updateNatGasProviders();
 }
 
 void MainWindow::on_HydroTriggered()
