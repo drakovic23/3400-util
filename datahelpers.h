@@ -47,7 +47,6 @@ public:
         services[UtilityType::HydroWater] = {UtilityType::HydroWater, 12.99};
         services[UtilityType::HydroSewerage] = {UtilityType::HydroSewerage, 6.88};
     }
-
 };
 
 class Bill
