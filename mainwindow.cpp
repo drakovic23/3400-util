@@ -69,13 +69,6 @@ void MainWindow::updateInetDataProviders()
         ui->inetTableWidget->setItem(row, 1, rateItem);
     }
 
-
-    //For the income/sales chart
-
-    //Select TV or some service
-    //Then update the chart
-
-
     // Get sales for this service type and provider
     map<int, float> providerSales; //Provider id -> total sales for selected service type
 
@@ -109,23 +102,19 @@ void MainWindow::updateInetDataProviders()
     }
     //*salesSet << 150 << 200 << 250 << 100 << 200 << 300;
 
-    // Create a bar series and append the set
     QBarSeries *series = new QBarSeries();
     series->append(salesSet);
 
-    // Create the chart and add the series
     QChart *chart = new QChart();
     chart->addSeries(series);
     chart->setTitle("Total Income / Sales per provider for selected service");
     chart->setAnimationOptions(QChart::SeriesAnimations);
 
-    // Create category axis (for example, months)
     QStringList categories;
 
     for(auto const& [key, val] : providerSales)
     {
         //Key is the customer
-
         categories << QString("Provider ") + QString::number(key);
     }
 
@@ -135,12 +124,10 @@ void MainWindow::updateInetDataProviders()
     chart->addAxis(axisX, Qt::AlignBottom);
     series->attachAxis(axisX);
 
-    // Create a value axis for the sales data
     QValueAxis *axisY = new QValueAxis();
     chart->addAxis(axisY, Qt::AlignLeft);
     series->attachAxis(axisY);
 
-    // Assuming you have promoted a widget to QChartView in your UI (e.g., named chartView)
     ui->iNetChartView->setChart(chart);
     ui->iNetChartView->setRenderHint(QPainter::Antialiasing);
 }
