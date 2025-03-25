@@ -47,6 +47,7 @@ public:
         services[UtilityType::HydroWater] = {UtilityType::HydroWater, 12.99};
         services[UtilityType::HydroSewerage] = {UtilityType::HydroSewerage, 6.88};
     }
+
 };
 
 class Bill
@@ -64,7 +65,7 @@ public:
         dueDate = issueDate + std::chrono::hours(24 * 30);
     }
 
-    bool isOverDue(std::chrono::system_clock::time_point currentDate)
+    bool isOverDue(std::chrono::system_clock::time_point currentDate) const
     {
         return !isPaid && (currentDate > dueDate);
     }
@@ -73,11 +74,11 @@ public:
 class Subscription
 {
 public:
-    Provider provider; //The provider for this service/subscription
+    Provider* provider; //The provider for this service/subscription
     UtilityService service;
     vector<Bill> bills; //A vector holding billings for this subscription
 
-    Subscription(Provider prov, const UtilityService &serv)
+    Subscription(Provider* prov, const UtilityService &serv)
         : provider(prov), service(serv){}
 
     void addBill(const Bill& bill)

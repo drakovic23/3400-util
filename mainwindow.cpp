@@ -3,14 +3,7 @@
 #include <map>
 #include <string>
 #include <iostream>
-#include <QtCharts/QChartView>
-#include <QtCharts/QChart>
-#include <QtCharts/QBarSeries>
-#include <QtCharts/QBarSet>
-#include <QtCharts/QBarCategoryAxis>
-#include <QtCharts/QValueAxis>
-#include <QList>
-#include <QStringList>
+#include <ctime>
 #include "./ui_mainwindow.h"
 #include "./datahelpers.h"
 
@@ -19,19 +12,22 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    //Connect our toolbar buttons
+
     connect(ui->actionNatGas, &QAction::triggered, this, &MainWindow::on_NatGasTriggered);
     connect(ui->actionHydro, &QAction::triggered, this, &MainWindow::on_HydroTriggered);
     connect(ui->actionInternetService, &QAction::triggered, this, &MainWindow::on_InternetTriggered);
 
-    //The main data provider for retrieving customers, providers etc.
-    DataProvider mainDataProvider{};
-    this->dataProvider = mainDataProvider;
+    dataProvider = DataProvider();
 
-    //Initialize the internet page
+    // Initialize both internet and hydro tabs
     initInetWindow();
-    //Connect the dropdown on the inet page
-    connect(ui->inetComboBox, &QComboBox::currentTextChanged,this, &MainWindow::updateInetDataProviders);
+    initHydroWindow();
+
+    connect(ui->inetComboBox, &QComboBox::currentTextChanged, this, &MainWindow::updateInetDataProviders);
+    connect(ui->hydroComboBox, &QComboBox::currentTextChanged, this, &MainWindow::updateHydroDataProviders);
+    connect(ui->hydroCustomerBox, &QComboBox::currentIndexChanged, this, &MainWindow::displayHydroBillsForCustomer);
+
+    populateHydroCustomerBox();
 }
 
 MainWindow::~MainWindow()
@@ -39,126 +35,142 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-//TODO: This needs some styling
+// ========== INTERNET SECTION ==========
+void MainWindow::initInetWindow()
+{
+    QStringList inetDropDownOptions = {"TV", "Mobile Phone", "Home Phone"};
+    ui->inetComboBox->addItems(inetDropDownOptions);
+    ui->inetTableWidget->setColumnCount(2);
+    ui->inetTableWidget->setHorizontalHeaderLabels(QStringList() << "Provider" << "Rate");
+}
+
 void MainWindow::updateInetDataProviders()
 {
     vector<Provider> providers = dataProvider.getProviders();
     ui->inetTableWidget->setRowCount(0);
-    //UtilityType::InternetHomePhone
-    //Holds the corresponding index to the utility type
-    map<int, UtilityType> utilityTypes =
-    {
-        {0, UtilityType::InternetTV},
-        {1, UtilityType::InternetMobile},
-        {2, UtilityType::InternetHomePhone}
-    };
-    int selectedIndex = ui->inetComboBox->currentIndex();
 
+    map<int, UtilityType> utilityTypes =
+        {
+            {0, UtilityType::InternetTV},
+            {1, UtilityType::InternetMobile},
+            {2, UtilityType::InternetHomePhone}
+        };
+
+    int selectedIndex = ui->inetComboBox->currentIndex();
     UtilityType type = utilityTypes[selectedIndex];
-    //Populate the table widget
+
     for (const Provider &provider : providers)
     {
         int row = ui->inetTableWidget->rowCount();
         ui->inetTableWidget->insertRow(row);
 
-        //QTableWidgetItem *providerItem = new QTableWidgetItem(provider.name);
         QTableWidgetItem *providerItem = new QTableWidgetItem(QString::fromStdString(provider.name));
-        QTableWidgetItem *rateItem = new QTableWidgetItem(QString("$%4").arg(provider.services.at(type).meterRate));
+        QTableWidgetItem *rateItem = new QTableWidgetItem(QString("$%1").arg(provider.services.at(type).meterRate));
 
         ui->inetTableWidget->setItem(row, 0, providerItem);
         ui->inetTableWidget->setItem(row, 1, rateItem);
     }
+}
 
+// ========== HYDRO SECTION (Amro) ==========
 
-    //For the income/sales chart
+void MainWindow::initHydroWindow()
+{
+    QStringList hydroOptions = {"Electric", "Water", "Sewerage"};
+    ui->hydroComboBox->addItems(hydroOptions);
 
-    //Select TV or some service
-    //Then update the chart
+    ui->hydroTableWidget->setColumnCount(2);
+    ui->hydroTableWidget->setHorizontalHeaderLabels(QStringList() << "Provider" << "Rate");
 
+    ui->hydroTableWidget->setColumnCount(4);
+    ui->hydroTableWidget->setHorizontalHeaderLabels(QStringList() << "Service" << "Date" << "Amount" << "Status");
+}
 
-    // Get sales for this service type and provider
-    map<int, float> providerSales; //Provider id -> total sales for selected service type
+void MainWindow::updateHydroDataProviders()
+{
+    vector<Provider> providers = dataProvider.getProviders();
+    ui->hydroTableWidget->setRowCount(0);
 
-    map<int, Customer> customers = dataProvider.getCustomers();
-
-    for(size_t i = 0; i < customers.size(); i++)
-    {
-        for(size_t j = 0; j < customers[i].subscriptions.size();j++)
+    map<int, UtilityType> utilityTypes =
         {
-            //If the customer has a subscription with the selected utility type
-            if(customers[i].subscriptions[j].service.type == utilityTypes[selectedIndex])
-            {
-                //Loop through all the bills for this utility type and add it to the map
-                for(size_t x = 0; x < customers[i].subscriptions[j].bills.size();x++)
-                {
-                    providerSales[customers[i].subscriptions[j].provider.id] += customers[i].subscriptions[j].bills[x].amount;
-                }
+            {0, UtilityType::HydroElectric},
+            {1, UtilityType::HydroWater},
+            {2, UtilityType::HydroSewerage}
+        };
 
+    int selectedIndex = ui->hydroComboBox->currentIndex();
+    UtilityType type = utilityTypes[selectedIndex];
+
+    for (const Provider& provider : providers)
+    {
+        int row = ui->hydroTableWidget->rowCount();
+        ui->hydroTableWidget->insertRow(row);
+
+        QTableWidgetItem* providerItem = new QTableWidgetItem(QString::fromStdString(provider.name));
+        QTableWidgetItem* rateItem = new QTableWidgetItem(QString("$%1").arg(provider.services.at(type).meterRate));
+
+        ui->hydroTableWidget->setItem(row, 0, providerItem);
+        ui->hydroTableWidget->setItem(row, 1, rateItem);
+    }
+}
+
+void MainWindow::populateHydroCustomerBox()
+{
+    ui->hydroCustomerBox->clear();
+    for (const auto& [id, customer] : dataProvider.getCustomers()) {
+        QString label = QString("ID %1 - %2").arg(id).arg(QString::fromStdString(customer.name));
+        ui->hydroCustomerBox->addItem(label, id);
+    }
+}
+
+// ========== Hydro Section (Amro) ==========
+void MainWindow::displayHydroBillsForCustomer()
+{
+    ui->hydroBillTableWidget->setRowCount(0);  // Clear existing bills
+
+    int customerIndex = ui->hydroCustomerBox->currentIndex();
+    if (customerIndex < 0) return;
+
+    int customerId = ui->hydroCustomerBox->itemData(customerIndex).toInt();
+    const auto& customers = dataProvider.getCustomers();
+    auto it = customers.find(customerId);
+    if (it == customers.end()) return;
+
+    const Customer& customer = it->second;
+
+    for (const Subscription& sub : customer.subscriptions)
+    {
+        if (sub.service.type == UtilityType::HydroElectric ||
+            sub.service.type == UtilityType::HydroWater ||
+            sub.service.type == UtilityType::HydroSewerage)
+        {
+            QString serviceName =
+                sub.service.type == UtilityType::HydroElectric ? "Electric" :
+                    sub.service.type == UtilityType::HydroWater ? "Water" : "Sewerage";
+
+            for (const Bill& bill : sub.bills)
+            {
+                std::time_t issue = std::chrono::system_clock::to_time_t(bill.issueDate);
+                QString dateStr = QString::fromStdString(std::string(std::ctime(&issue))).trimmed();
+                QString statusStr = bill.isPaid ? "Paid" :
+                                        (bill.isOverDue(std::chrono::system_clock::now()) ? "Overdue" : "Unpaid");
+
+                int row = ui->hydroBillTableWidget->rowCount();
+                ui->hydroBillTableWidget->insertRow(row);
+
+                ui->hydroBillTableWidget->setItem(row, 0, new QTableWidgetItem(serviceName));
+                ui->hydroBillTableWidget->setItem(row, 1, new QTableWidgetItem(dateStr));
+                ui->hydroBillTableWidget->setItem(row, 2, new QTableWidgetItem(QString("$%1").arg(bill.amount, 0, 'f', 2)));
+                ui->hydroBillTableWidget->setItem(row, 3, new QTableWidgetItem(statusStr));
             }
         }
     }
-
-    // Create a set of data
-    QBarSet *salesSet = new QBarSet("Sales");
-
-    for(auto const& [key, val] : providerSales)
-    {
-        //Since the map is ordered we can simply output to our barset
-
-        *salesSet << val;
-    }
-    //*salesSet << 150 << 200 << 250 << 100 << 200 << 300;
-
-    // Create a bar series and append the set
-    QBarSeries *series = new QBarSeries();
-    series->append(salesSet);
-
-    // Create the chart and add the series
-    QChart *chart = new QChart();
-    chart->addSeries(series);
-    chart->setTitle("Total Income / Sales per provider for selected service");
-    chart->setAnimationOptions(QChart::SeriesAnimations);
-
-    // Create category axis (for example, months)
-    QStringList categories;
-
-    for(auto const& [key, val] : providerSales)
-    {
-        //Key is the customer
-
-        categories << QString("Provider ") + QString::number(key);
-    }
-
-    //categories << "Provider 1" << "Provider 2" << "Provider 3" << "Provider 4" << "Provider 5" << "Provider 6";
-    QBarCategoryAxis *axisX = new QBarCategoryAxis();
-    axisX->append(categories);
-    chart->addAxis(axisX, Qt::AlignBottom);
-    series->attachAxis(axisX);
-
-    // Create a value axis for the sales data
-    QValueAxis *axisY = new QValueAxis();
-    chart->addAxis(axisY, Qt::AlignLeft);
-    series->attachAxis(axisY);
-
-    // Assuming you have promoted a widget to QChartView in your UI (e.g., named chartView)
-    ui->iNetChartView->setChart(chart);
-    ui->iNetChartView->setRenderHint(QPainter::Antialiasing);
 }
 
-void MainWindow::initInetWindow()
-{
-    //Combo box on Internet Page
-    QStringList inetDropDownOptions = {"TV", "Mobile Phone", "Home Phone"};
-    ui->inetComboBox->addItems(inetDropDownOptions);
-    //Table widget
-    ui->inetTableWidget->setColumnCount(2);
-    ui->inetTableWidget->setHorizontalHeaderLabels(QStringList() << "Provider" << "Rate");
 
-   // ui->inetComboBox->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
-    //ui->inetServiceLabel->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
-}
+// ========== END HYDRO SECTION (Amro) ==========
 
-//Triggers for changing the page on the stacked widget
+// PAGE NAVIGATION
 void MainWindow::on_NatGasTriggered()
 {
     ui->stackedWidget->setCurrentIndex(0);
@@ -166,12 +178,10 @@ void MainWindow::on_NatGasTriggered()
 
 void MainWindow::on_HydroTriggered()
 {
-
     ui->stackedWidget->setCurrentIndex(1);
 }
 
 void MainWindow::on_InternetTriggered()
 {
-
     ui->stackedWidget->setCurrentIndex(2);
 }
