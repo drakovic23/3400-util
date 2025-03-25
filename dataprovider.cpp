@@ -49,8 +49,8 @@ DataProvider::DataProvider()
         UtilityType randomUtility1 = utilityTypes[utilityDist(gen)];
         UtilityType randomUtility2 = utilityTypes[utilityDist(gen)];
 
-        c.addSubscription(Subscription(&providers[providerIndex1], providers[providerIndex1].services[randomUtility1]));
-        c.addSubscription(Subscription(&providers[providerIndex2], providers[providerIndex2].services[randomUtility2]));
+        c.addSubscription(Subscription(providers[providerIndex1], providers[providerIndex1].services[randomUtility1]));
+        c.addSubscription(Subscription(providers[providerIndex2], providers[providerIndex2].services[randomUtility2]));
 
         customers[i] = c;
     }

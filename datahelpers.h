@@ -73,11 +73,11 @@ public:
 class Subscription
 {
 public:
-    Provider* provider; //The provider for this service/subscription
+    Provider provider; //The provider for this service/subscription
     UtilityService service;
     vector<Bill> bills; //A vector holding billings for this subscription
 
-    Subscription(Provider* prov, const UtilityService &serv)
+    Subscription(Provider prov, const UtilityService &serv)
         : provider(prov), service(serv){}
 
     void addBill(const Bill& bill)

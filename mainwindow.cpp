@@ -91,7 +91,7 @@ void MainWindow::updateInetDataProviders()
                 //Loop through all the bills for this utility type and add it to the map
                 for(size_t x = 0; x < customers[i].subscriptions[j].bills.size();x++)
                 {
-                    providerSales[customers[i].subscriptions[j].provider->id] += customers[i].subscriptions[j].bills[x].amount;
+                    providerSales[customers[i].subscriptions[j].provider.id] += customers[i].subscriptions[j].bills[x].amount;
                 }
 
             }
