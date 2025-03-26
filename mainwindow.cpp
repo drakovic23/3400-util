@@ -82,8 +82,8 @@ void MainWindow::initHydroWindow()
     ui->hydroTableWidget->setColumnCount(2);
     ui->hydroTableWidget->setHorizontalHeaderLabels(QStringList() << "Provider" << "Rate");
 
-    ui->hydroTableWidget->setColumnCount(4);
-    ui->hydroTableWidget->setHorizontalHeaderLabels(QStringList() << "Service" << "Date" << "Amount" << "Status");
+    ui->hydroBillTableWidget->setColumnCount(4);
+    ui->hydroBillTableWidget->setHorizontalHeaderLabels(QStringList() << "Service" << "Date" << "Amount" << "Status");
 }
 
 void MainWindow::updateHydroDataProviders()

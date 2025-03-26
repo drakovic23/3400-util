@@ -32,76 +32,56 @@
        </layout>
       </widget>
       <widget class="QWidget" name="page_2">
-       <widget class="QComboBox" name="hydroComboBox">
-        <property name="geometry">
-         <rect>
-          <x>0</x>
-          <y>0</y>
-          <width>501</width>
-          <height>28</height>
-         </rect>
-        </property>
-       </widget>
-       <widget class="QComboBox" name="hydroCustomerBox">
-        <property name="geometry">
-         <rect>
-          <x>500</x>
-          <y>0</y>
-          <width>541</width>
-          <height>28</height>
-         </rect>
-        </property>
-       </widget>
-       <widget class="QTableWidget" name="hydroBillTableWidget">
-        <property name="geometry">
-         <rect>
-          <x>500</x>
-          <y>30</y>
-          <width>541</width>
-          <height>461</height>
-         </rect>
-        </property>
-        <column>
-         <property name="text">
-          <string>Service</string>
-         </property>
-        </column>
-        <column>
-         <property name="text">
-          <string>Date</string>
-         </property>
-        </column>
-        <column>
-         <property name="text">
-          <string>Amount</string>
-         </property>
-        </column>
-        <column>
-         <property name="text">
-          <string>Status</string>
-         </property>
-        </column>
-       </widget>
-       <widget class="QTableWidget" name="hydroTableWidget">
-        <property name="geometry">
-         <rect>
-          <x>0</x>
-          <y>30</y>
-          <width>501</width>
-          <height>461</height>
-         </rect>
-        </property>
-        <column>
-         <property name="text">
-          <string>Provider</string>
-         </property>
-        </column>
-        <column>
-         <property name="text">
-          <string>Rate</string>
-         </property>
-        </column>
-       </widget>
+       <layout class="QHBoxLayout" name="horizontalLayout">
+        <item>
+         <layout class="QVBoxLayout" name="verticalLayout_2">
+          <item>
+           <widget class="QComboBox" name="hydroComboBox"/>
+          </item>
+          <item>
+           <widget class="QTableWidget" name="hydroTableWidget">
+            <column>
+             <property name="text">
+              <string>Provider</string>
+             </property>
+            </column>
+            <column>
+             <property name="text">
+              <string>Rate</string>
+             </property>
+            </column>
+           </widget>
+          </item>
+          <item>
+           <widget class="QComboBox" name="hydroCustomerBox"/>
+          </item>
+          <item>
+           <widget class="QTableWidget" name="hydroBillTableWidget">
+            <column>
+             <property name="text">
+              <string>Service</string>
+             </property>
+            </column>
+            <column>
+             <property name="text">
+              <string>Date</string>
+             </property>
+            </column>
+            <column>
+             <property name="text">
+              <string>Amount</string>
+             </property>
+            </column>
+            <column>
+             <property name="text">
+              <string>Status</string>
+             </property>
+            </column>
+           </widget>
+          </item>
+         </layout>
+        </item>
+       </layout>
       </widget>
       <widget class="QWidget" name="page_3">
        <layout class="QGridLayout" name="gridLayout_3">
