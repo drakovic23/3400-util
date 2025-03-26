@@ -17,7 +17,7 @@ CustomerDetailsDialog::CustomerDetailsDialog(const Customer customer, QWidget *p
 {
     ui->setupUi(this);
     setWindowTitle("Viewing Customer : " + QString::fromStdString(customer.name));
-    //ui->nameLabel->setText(QString::fromStdString(customer.name));
+    connect(ui->closeButton, &QPushButton::clicked, this, &QDialog::close);
     initCustomerDetails(customer);
 }
 
@@ -59,6 +59,7 @@ void CustomerDetailsDialog::initCustomerDetails(const Customer &customer)
             std::time_t dateT = std::chrono::system_clock::to_time_t(customer.subscriptions[i].bills[j].dueDate);
             QDateTime date = QDateTime::fromSecsSinceEpoch(dateT);
             string isOverdue = customer.subscriptions[i].bills[j].isOverDue(std::chrono::system_clock::now()) ? "Overdue!" : "No";
+            //Since you cannot assign two widget items to different tables we have to recreate some
             QTableWidgetItem *amountDue = new QTableWidgetItem(QString("%3").arg(amount));
             QTableWidgetItem *dateDue = new QTableWidgetItem(date.toString("dd-MM-yyyy"));
             QTableWidgetItem *overDue = new QTableWidgetItem(QString::fromStdString(isOverdue));

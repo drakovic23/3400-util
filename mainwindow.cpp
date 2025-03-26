@@ -176,10 +176,15 @@ void MainWindow::initInetWindow()
     //For the rates table
     ui->inetTableWidget->setColumnCount(2);
     ui->inetTableWidget->setHorizontalHeaderLabels(QStringList() << "Provider" << "Rate");
+    ui->inetTableWidget->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    ui->inetTableWidget->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Stretch);
     //For the customer table
     ui->inetCustomerTable->setColumnCount(2);
     ui->inetCustomerTable->setHorizontalHeaderLabels(QStringList() << "Customer Name" << "Provider");
     ui->inetCustomerTable->setContextMenuPolicy(Qt::CustomContextMenu);
+    ui->inetCustomerTable->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    //So the last column takes up any remainig space
+    ui->inetCustomerTable->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Stretch);
 }
 
 //Triggers for changing the page on the stacked widget
