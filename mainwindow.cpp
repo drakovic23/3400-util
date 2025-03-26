@@ -168,9 +168,10 @@ void MainWindow::updateNatGasProviders()
 
     ui->gasProviderTableWidget->setRowCount(0);
 
-    ui->gasProviderTableWidget->setColumnCount(2);
-    ui->gasProviderTableWidget->setHorizontalHeaderLabels(QStringList() << "Provider" << "Rate");
-    //add total sales later on, use qss?
+    ui->gasProviderTableWidget->setColumnCount(3);
+    ui->gasProviderTableWidget->setHorizontalHeaderLabels(QStringList() << "Provider" << "Rate" << "Total Sales");
+    //use qss for styling?
+
 
     for (const Provider& provider : providers)
     {
@@ -181,16 +182,38 @@ void MainWindow::updateNatGasProviders()
         //get info
         UtilityService natGasService = provider.services.at(UtilityType::NaturalGas);
 
+        //calculate total sales for this provider
+        map<int, Customer> customers = dataProvider.getCustomers();
+        double totalSales = 0.0;
+
+        //loop through customers
+        for(const auto& [id, customer] : customers)
+        {
+            for (const Subscription& sub : customer.subscriptions) {
+                //check if this subscription belongs to nautural gas and belongs to this provider
+                if (sub.service.type == UtilityType::NaturalGas && sub.provider.id == provider.id)
+                {
+                    for(const Bill& bill : sub.bills){
+                        if (bill.isPaid)
+                            totalSales += bill.amount;
+                    }
+                }
+            }
+        }
+
+
         //create a new row in table
         int row = ui->gasProviderTableWidget->rowCount();
         ui->gasProviderTableWidget->insertRow(row);
 
         QTableWidgetItem* nameItem = new QTableWidgetItem(QString::fromStdString(provider.name));
         QTableWidgetItem* rateItem = new QTableWidgetItem(QString("$%1").arg(natGasService.meterRate, 0, 'f', 2));
+        QTableWidgetItem* salesItem = new QTableWidgetItem(QString("$%1").arg(totalSales, 0, 'f', 2));
 
 
         ui->gasProviderTableWidget->setItem(row, 0, nameItem);
         ui->gasProviderTableWidget->setItem(row, 1, rateItem);
+        ui->gasProviderTableWidget->setItem(row, 2, salesItem);
 
         }
     }

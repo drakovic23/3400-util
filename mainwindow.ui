@@ -53,6 +53,11 @@
           <string>Rate</string>
          </property>
         </column>
+        <column>
+         <property name="text">
+          <string>Total Sales</string>
+         </property>
+        </column>
        </widget>
        <widget class="QTableWidget" name="gasBillingTableWidget">
         <property name="geometry">
@@ -81,11 +86,6 @@
         <column>
          <property name="text">
           <string>Amount Due</string>
-         </property>
-        </column>
-        <column>
-         <property name="text">
-          <string>Status</string>
          </property>
         </column>
         <column>
