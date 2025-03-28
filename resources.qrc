@@ -3,5 +3,7 @@
         <file>resources/icons/cloud-network.png</file>
         <file>resources/icons/elec.png</file>
         <file>resources/icons/natural-gas.png</file>
+        <file>resources/icons/ontime.png</file>
+        <file>resources/icons/overdue.png</file>
     </qresource>
 </RCC>

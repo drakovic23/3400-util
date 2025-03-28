@@ -26,6 +26,7 @@ private:
     void initInetWindow();
     void updateInetDataProviders();
     void updateNatGasProviders();
+    void updateNatGasBillingTable();
     DataProvider dataProvider;
 };
 #endif // MAINWINDOW_H

@@ -11,6 +11,7 @@
 #include <QtCharts/QValueAxis>
 #include <QList>
 #include <QStringList>
+#include <QDateTime>
 #include "./ui_mainwindow.h"
 #include "./datahelpers.h"
 
@@ -170,7 +171,6 @@ void MainWindow::updateNatGasProviders()
 
     ui->gasProviderTableWidget->setColumnCount(3);
     ui->gasProviderTableWidget->setHorizontalHeaderLabels(QStringList() << "Provider" << "Rate" << "Total Sales");
-    //use qss for styling?
 
 
     for (const Provider& provider : providers)
@@ -222,6 +222,64 @@ void MainWindow::updateNatGasProviders()
 
 }
 
+void MainWindow:: updateNatGasBillingTable(){
+
+    ui->gasBillingTableWidget->setRowCount(0);
+    ui->gasBillingTableWidget->setColumnCount(5);
+    ui->gasBillingTableWidget->setIconSize(QSize(54,54));
+    ui->gasBillingTableWidget->setHorizontalHeaderLabels(QStringList() << "Customer" << "Rate" << "Amount Due" << "Due Date" << "Overdue");
+
+
+    //get current time to check overdue
+    auto now = std::chrono::system_clock::now();
+
+    map<int, Customer> customers = dataProvider.getCustomers();
+
+    for (const auto& [id, customer] : customers)
+    {
+        for (const Subscription& sub : customer.subscriptions){
+            //filter for natural gas subscriptions
+            if(sub.service.type == UtilityType::NaturalGas)
+            {
+                for (const Bill& bill : sub.bills)
+                {
+                    int row = ui->gasBillingTableWidget->rowCount();
+                    ui->gasBillingTableWidget->insertRow(row);
+
+                    QTableWidgetItem* nameItem = new QTableWidgetItem(QString::fromStdString(customer.name));
+                    QTableWidgetItem* rateItem = new QTableWidgetItem(QString("$%1").arg(sub.service.meterRate, 0, 'f', 2));
+                    QTableWidgetItem* amountItem = new QTableWidgetItem(QString("$%1").arg(bill.amount, 0, 'f', 2));
+
+
+                    //due date
+                    std::time_t dueT = std::chrono::system_clock::to_time_t(bill.dueDate);
+                    QDateTime qtDueDate = QDateTime::fromSecsSinceEpoch(dueT);
+                    QString dueDateStr = qtDueDate.toString("dd-MM-yyyy");
+                    QTableWidgetItem* dueDateItem = new QTableWidgetItem(dueDateStr);
+
+                    //check overdue status
+                    Bill billCopy = bill;
+                    bool overdue = billCopy.isOverDue(now);
+                    QTableWidgetItem* overdueItem = new QTableWidgetItem();
+                    QIcon statusIcon(overdue ? QPixmap(":/icons/resources/icons/overdue.png") : QPixmap(":/icons/resources/icons/ontime.png"));
+                    overdueItem->setIcon(statusIcon);
+                    overdueItem->setToolTip(overdue ? "Overdue" : "On Time");
+
+
+                    ui->gasBillingTableWidget->setItem(row, 0, nameItem);
+                    ui->gasBillingTableWidget->setItem(row, 1, rateItem);
+                    ui->gasBillingTableWidget->setItem(row, 2, amountItem);
+                    ui->gasBillingTableWidget->setItem(row, 3, dueDateItem);
+                    ui->gasBillingTableWidget->setItem(row, 4, overdueItem);
+                }
+            }
+
+        }
+    }
+
+    ui->gasBillingTableWidget->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+}
+
 
 
 //NatGas section
@@ -232,6 +290,7 @@ void MainWindow::on_NatGasTriggered()
 {
     ui->stackedWidget->setCurrentIndex(0);
     updateNatGasProviders();
+    updateNatGasBillingTable();
 }
 
 void MainWindow::on_HydroTriggered()
