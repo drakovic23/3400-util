@@ -11,6 +11,7 @@
 #include <QtCharts/QValueAxis>
 #include <QList>
 #include <QStringList>
+#include <QDateTime>
 #include <QMenu>
 #include "./ui_mainwindow.h"
 #include "./datahelpers.h"
@@ -187,10 +188,138 @@ void MainWindow::initInetWindow()
     ui->inetCustomerTable->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Stretch);
 }
 
+
+
+//NatGas section
+
+void MainWindow::updateNatGasProviders()
+{
+    vector<Provider> providers = dataProvider.getProviders();
+
+    ui->gasProviderTableWidget->setRowCount(0);
+
+    ui->gasProviderTableWidget->setColumnCount(3);
+    ui->gasProviderTableWidget->setHorizontalHeaderLabels(QStringList() << "Provider" << "Rate" << "Total Sales");
+
+
+    for (const Provider& provider : providers)
+    {
+        //check if provider offers Natural Gas
+        if (provider.services.find(UtilityType::NaturalGas) != provider.services.end())
+        {
+
+        //get info
+        UtilityService natGasService = provider.services.at(UtilityType::NaturalGas);
+
+        //calculate total sales for this provider
+        map<int, Customer> customers = dataProvider.getCustomers();
+        double totalSales = 0.0;
+
+        //loop through customers
+        for(const auto& [id, customer] : customers)
+        {
+            for (const Subscription& sub : customer.subscriptions) {
+                //check if this subscription belongs to nautural gas and belongs to this provider
+                if (sub.service.type == UtilityType::NaturalGas && sub.provider.id == provider.id)
+                {
+                    for(const Bill& bill : sub.bills){
+                        if (bill.isPaid)
+                            totalSales += bill.amount;
+                    }
+                }
+            }
+        }
+
+
+        //create a new row in table
+        int row = ui->gasProviderTableWidget->rowCount();
+        ui->gasProviderTableWidget->insertRow(row);
+
+        QTableWidgetItem* nameItem = new QTableWidgetItem(QString::fromStdString(provider.name));
+        QTableWidgetItem* rateItem = new QTableWidgetItem(QString("$%1").arg(natGasService.meterRate, 0, 'f', 2));
+        QTableWidgetItem* salesItem = new QTableWidgetItem(QString("$%1").arg(totalSales, 0, 'f', 2));
+
+
+        ui->gasProviderTableWidget->setItem(row, 0, nameItem);
+        ui->gasProviderTableWidget->setItem(row, 1, rateItem);
+        ui->gasProviderTableWidget->setItem(row, 2, salesItem);
+
+        }
+    }
+
+    ui->gasProviderTableWidget->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+
+}
+
+void MainWindow:: updateNatGasBillingTable(){
+
+    ui->gasBillingTableWidget->setRowCount(0);
+    ui->gasBillingTableWidget->setColumnCount(5);
+    ui->gasBillingTableWidget->setIconSize(QSize(54,54));
+    ui->gasBillingTableWidget->setHorizontalHeaderLabels(QStringList() << "Customer" << "Rate" << "Amount Due" << "Due Date" << "Overdue");
+
+
+    //get current time to check overdue
+    auto now = std::chrono::system_clock::now();
+
+    map<int, Customer> customers = dataProvider.getCustomers();
+
+    for (const auto& [id, customer] : customers)
+    {
+        for (const Subscription& sub : customer.subscriptions){
+            //filter for natural gas subscriptions
+            if(sub.service.type == UtilityType::NaturalGas)
+            {
+                for (const Bill& bill : sub.bills)
+                {
+                    int row = ui->gasBillingTableWidget->rowCount();
+                    ui->gasBillingTableWidget->insertRow(row);
+
+                    QTableWidgetItem* nameItem = new QTableWidgetItem(QString::fromStdString(customer.name));
+                    QTableWidgetItem* rateItem = new QTableWidgetItem(QString("$%1").arg(sub.service.meterRate, 0, 'f', 2));
+                    QTableWidgetItem* amountItem = new QTableWidgetItem(QString("$%1").arg(bill.amount, 0, 'f', 2));
+
+
+                    //due date
+                    std::time_t dueT = std::chrono::system_clock::to_time_t(bill.dueDate);
+                    QDateTime qtDueDate = QDateTime::fromSecsSinceEpoch(dueT);
+                    QString dueDateStr = qtDueDate.toString("dd-MM-yyyy");
+                    QTableWidgetItem* dueDateItem = new QTableWidgetItem(dueDateStr);
+
+                    //check overdue status
+                    Bill billCopy = bill;
+                    bool overdue = billCopy.isOverDue(now);
+                    QTableWidgetItem* overdueItem = new QTableWidgetItem();
+                    QIcon statusIcon(overdue ? QPixmap(":/icons/resources/icons/overdue.png") : QPixmap(":/icons/resources/icons/ontime.png"));
+                    overdueItem->setIcon(statusIcon);
+                    overdueItem->setToolTip(overdue ? "Overdue" : "On Time");
+
+
+                    ui->gasBillingTableWidget->setItem(row, 0, nameItem);
+                    ui->gasBillingTableWidget->setItem(row, 1, rateItem);
+                    ui->gasBillingTableWidget->setItem(row, 2, amountItem);
+                    ui->gasBillingTableWidget->setItem(row, 3, dueDateItem);
+                    ui->gasBillingTableWidget->setItem(row, 4, overdueItem);
+                }
+            }
+
+        }
+    }
+
+    ui->gasBillingTableWidget->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+}
+
+
+
+//NatGas section
+
+
 //Triggers for changing the page on the stacked widget
 void MainWindow::on_NatGasTriggered()
 {
     ui->stackedWidget->setCurrentIndex(0);
+    updateNatGasProviders();
+    updateNatGasBillingTable();
 }
 
 void MainWindow::on_HydroTriggered()

@@ -25,6 +25,8 @@ private:
     void on_InternetTriggered();
     void initInetWindow();
     void updateInetDataProviders();
+    void updateNatGasProviders();
+    void updateNatGasBillingTable();
     void showInetCustomerContext(const QPoint &pos);
     DataProvider dataProvider;
 };

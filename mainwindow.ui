@@ -24,18 +24,94 @@
     <item>
      <widget class="QStackedWidget" name="stackedWidget">
       <property name="currentIndex">
-       <number>2</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="page">
-       <layout class="QGridLayout" name="gridLayout">
-        <item row="0" column="0">
-         <widget class="QLabel" name="label">
-          <property name="text">
-           <string>NAT GAS WINDOW (NOT IMPLEMENTED)</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
+       <widget class="QLabel" name="label">
+        <property name="geometry">
+         <rect>
+          <x>12</x>
+          <y>478</y>
+          <width>1012</width>
+          <height>16</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+       <widget class="QTableWidget" name="gasProviderTableWidget">
+        <property name="geometry">
+         <rect>
+          <x>12</x>
+          <y>12</y>
+          <width>411</width>
+          <height>371</height>
+         </rect>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">QTableWidget::item:hover {
+    background-color: #a8c8ff;
+    color: white;
+}</string>
+        </property>
+        <column>
+         <property name="text">
+          <string>Provider</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>Rate</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>Total Sales</string>
+         </property>
+        </column>
+       </widget>
+       <widget class="QTableWidget" name="gasBillingTableWidget">
+        <property name="geometry">
+         <rect>
+          <x>430</x>
+          <y>10</y>
+          <width>601</width>
+          <height>371</height>
+         </rect>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">QTableWidget::item:hover {
+    background-color: #a8c8ff;
+    color: white;
+}</string>
+        </property>
+        <column>
+         <property name="text">
+          <string>Customer</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>Rate</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>Amount Due</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>Due Date</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>Overdue</string>
+         </property>
+        </column>
+       </widget>
       </widget>
       <widget class="QWidget" name="page_2">
        <layout class="QGridLayout" name="gridLayout_2">
