@@ -27,6 +27,7 @@ private:
     void updateInetDataProviders();
     void updateNatGasProviders();
     void updateNatGasBillingTable();
+    void showInetCustomerContext(const QPoint &pos);
     DataProvider dataProvider;
 };
 #endif // MAINWINDOW_H

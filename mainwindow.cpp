@@ -12,8 +12,10 @@
 #include <QList>
 #include <QStringList>
 #include <QDateTime>
+#include <QMenu>
 #include "./ui_mainwindow.h"
 #include "./datahelpers.h"
+#include "./customerdetailsdialog.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -24,15 +26,16 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->actionNatGas, &QAction::triggered, this, &MainWindow::on_NatGasTriggered);
     connect(ui->actionHydro, &QAction::triggered, this, &MainWindow::on_HydroTriggered);
     connect(ui->actionInternetService, &QAction::triggered, this, &MainWindow::on_InternetTriggered);
-
+    //Connect the dropdown on the inet page
+    connect(ui->inetComboBox, &QComboBox::currentTextChanged,this, &MainWindow::updateInetDataProviders);
+    //Connect the customer table on the inet page to a custom context mnenu
+    connect(ui->inetCustomerTable, &QTableWidget::customContextMenuRequested,this, &MainWindow::showInetCustomerContext);
     //The main data provider for retrieving customers, providers etc.
     DataProvider mainDataProvider{};
     this->dataProvider = mainDataProvider;
 
     //Initialize the internet page
     initInetWindow();
-    //Connect the dropdown on the inet page
-    connect(ui->inetComboBox, &QComboBox::currentTextChanged,this, &MainWindow::updateInetDataProviders);
 }
 
 MainWindow::~MainWindow()
@@ -40,12 +43,13 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-//TODO: This needs some styling
+//Handles what happens when the drop down on the inet page is selected
 void MainWindow::updateInetDataProviders()
 {
     vector<Provider> providers = dataProvider.getProviders();
     ui->inetTableWidget->setRowCount(0);
-    //UtilityType::InternetHomePhone
+    ui->inetCustomerTable->setRowCount(0);
+
     //Holds the corresponding index to the utility type
     map<int, UtilityType> utilityTypes =
     {
@@ -62,7 +66,6 @@ void MainWindow::updateInetDataProviders()
         int row = ui->inetTableWidget->rowCount();
         ui->inetTableWidget->insertRow(row);
 
-        //QTableWidgetItem *providerItem = new QTableWidgetItem(provider.name);
         QTableWidgetItem *providerItem = new QTableWidgetItem(QString::fromStdString(provider.name));
         QTableWidgetItem *rateItem = new QTableWidgetItem(QString("$%4").arg(provider.services.at(type).meterRate));
 
@@ -70,16 +73,8 @@ void MainWindow::updateInetDataProviders()
         ui->inetTableWidget->setItem(row, 1, rateItem);
     }
 
-
-    //For the income/sales chart
-
-    //Select TV or some service
-    //Then update the chart
-
-
     // Get sales for this service type and provider
     map<int, float> providerSales; //Provider id -> total sales for selected service type
-
     map<int, Customer> customers = dataProvider.getCustomers();
 
     for(size_t i = 0; i < customers.size(); i++)
@@ -89,12 +84,22 @@ void MainWindow::updateInetDataProviders()
             //If the customer has a subscription with the selected utility type
             if(customers[i].subscriptions[j].service.type == utilityTypes[selectedIndex])
             {
-                //Loop through all the bills for this utility type and add it to the map
+                //Loop through all the bills for this utility type and add it to the map for total sales
                 for(size_t x = 0; x < customers[i].subscriptions[j].bills.size();x++)
                 {
                     providerSales[customers[i].subscriptions[j].provider.id] += customers[i].subscriptions[j].bills[x].amount;
                 }
 
+                //This is used to populate the table that holds customers with the selected utility type.
+                int row = ui->inetCustomerTable->rowCount();
+                ui->inetCustomerTable->insertRow(row);
+
+                QTableWidgetItem *customerName = new QTableWidgetItem(QString::fromStdString(customers[i].name));
+                QTableWidgetItem *providerName = new QTableWidgetItem(QString::fromStdString(customers[i].subscriptions[j].provider.name));
+                //Embed the customer ID for easy lookup
+                customerName->setData(Qt::UserRole, customers[i].id);
+                ui->inetCustomerTable->setItem(row, 0, customerName);
+                ui->inetCustomerTable->setItem(row, 1, providerName);
             }
         }
     }
@@ -108,55 +113,79 @@ void MainWindow::updateInetDataProviders()
 
         *salesSet << val;
     }
-    //*salesSet << 150 << 200 << 250 << 100 << 200 << 300;
 
-    // Create a bar series and append the set
     QBarSeries *series = new QBarSeries();
     series->append(salesSet);
 
-    // Create the chart and add the series
     QChart *chart = new QChart();
     chart->addSeries(series);
-    chart->setTitle("Total Income / Sales per provider for selected service");
+    chart->setTitle("Total Sales / provider for selected service");
     chart->setAnimationOptions(QChart::SeriesAnimations);
 
-    // Create category axis (for example, months)
     QStringList categories;
 
     for(auto const& [key, val] : providerSales)
     {
-        //Key is the customer
-
+        //Key is the provider #
         categories << QString("Provider ") + QString::number(key);
     }
 
-    //categories << "Provider 1" << "Provider 2" << "Provider 3" << "Provider 4" << "Provider 5" << "Provider 6";
     QBarCategoryAxis *axisX = new QBarCategoryAxis();
     axisX->append(categories);
+    axisX->setLabelsAngle(90);
     chart->addAxis(axisX, Qt::AlignBottom);
     series->attachAxis(axisX);
 
-    // Create a value axis for the sales data
     QValueAxis *axisY = new QValueAxis();
     chart->addAxis(axisY, Qt::AlignLeft);
     series->attachAxis(axisY);
 
-    // Assuming you have promoted a widget to QChartView in your UI (e.g., named chartView)
     ui->iNetChartView->setChart(chart);
     ui->iNetChartView->setRenderHint(QPainter::Antialiasing);
 }
+
+//For the context menu in the customer table widget
+void MainWindow::showInetCustomerContext(const QPoint &pos)
+{
+    QPoint globalPos = ui->inetCustomerTable->viewport()->mapToGlobal(pos);
+    // Get the item at the clicked position in the context window
+    QTableWidgetItem *item = ui->inetCustomerTable->itemAt(pos);
+    if (!item) //If no item selected
+        return;
+
+    QMenu contextMenu;
+    QAction *viewCustomerAction = contextMenu.addAction("View Customer");
+    QAction *selectedAction = contextMenu.exec(globalPos);
+
+    if (selectedAction == viewCustomerAction) {
+        int row = ui->inetCustomerTable->row(item); //Need this to get the customer name
+        QTableWidgetItem *tableItem = ui->inetCustomerTable->item(row, 0);
+        int customerId = tableItem->data(Qt::UserRole).toInt();
+        CustomerDetailsDialog *dialog = new CustomerDetailsDialog(dataProvider.findCustomer(customerId), this);
+        //Display the dialog
+
+        dialog->exec();
+    }
+}
+
 
 void MainWindow::initInetWindow()
 {
     //Combo box on Internet Page
     QStringList inetDropDownOptions = {"TV", "Mobile Phone", "Home Phone"};
     ui->inetComboBox->addItems(inetDropDownOptions);
-    //Table widget
+    //For the rates table
     ui->inetTableWidget->setColumnCount(2);
     ui->inetTableWidget->setHorizontalHeaderLabels(QStringList() << "Provider" << "Rate");
-
-   // ui->inetComboBox->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
-    //ui->inetServiceLabel->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
+    ui->inetTableWidget->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    ui->inetTableWidget->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Stretch);
+    //For the customer table
+    ui->inetCustomerTable->setColumnCount(2);
+    ui->inetCustomerTable->setHorizontalHeaderLabels(QStringList() << "Customer Name" << "Provider");
+    ui->inetCustomerTable->setContextMenuPolicy(Qt::CustomContextMenu);
+    ui->inetCustomerTable->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    //So the last column takes up any remainig space
+    ui->inetCustomerTable->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Stretch);
 }
 
 

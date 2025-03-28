@@ -64,7 +64,7 @@ public:
         dueDate = issueDate + std::chrono::hours(24 * 30);
     }
 
-    bool isOverDue(std::chrono::system_clock::time_point currentDate)
+    bool isOverDue(std::chrono::system_clock::time_point currentDate) const
     {
         return !isPaid && (currentDate > dueDate);
     }
