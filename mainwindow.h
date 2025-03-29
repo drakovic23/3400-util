@@ -38,6 +38,9 @@ private:
 
     // ========== End Hydro Section (Amro) ==========
 
+    void updateNatGasProviders();
+    void updateNatGasBillingTable();
+    void showInetCustomerContext(const QPoint &pos);
     DataProvider dataProvider;
 };
 

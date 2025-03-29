@@ -69,3 +69,31 @@ map<int, Customer> DataProvider::getCustomers()
 {
     return customers;
 }
+
+Customer DataProvider::findCustomer(int id)
+{
+    if(customers.find(id) == customers.end())
+    {
+        //Need to throw an exception here or something
+        Customer blankCustomer;
+        return blankCustomer;
+    }
+
+    return customers[id];
+}
+
+map<UtilityType, string> DataProvider::utilitiesAsString =
+{
+    {UtilityType::HydroElectric, "Electricity"},
+    {UtilityType::HydroSewerage, "Sewerage"},
+    {UtilityType::HydroWater, "Water"},
+    {UtilityType::InternetHomePhone, "Home Phone"},
+    {UtilityType::InternetMobile, "Mobile Phone"},
+    {UtilityType::InternetTV, "TV"},
+    {UtilityType::NaturalGas, "Natural Gas"},
+};
+// Returns the given enum type as a string
+string DataProvider::getUtilityAsString(UtilityType type)
+{
+    return utilitiesAsString[type];
+}
