@@ -40,9 +40,9 @@ MainWindow::MainWindow(QWidget *parent)
 
     //connect(ui->inetComboBox, &QComboBox::currentTextChanged, this, &MainWindow::updateInetDataProviders);
     connect(ui->hydroComboBox, &QComboBox::currentTextChanged, this, &MainWindow::updateHydroDataProviders);
-    connect(ui->hydroCustomerBox, &QComboBox::currentIndexChanged, this, &MainWindow::displayHydroBillsForCustomer);
 
-    populateHydroCustomerBox();
+
+
 }
 
 MainWindow::~MainWindow()
@@ -151,6 +151,8 @@ void MainWindow::updateInetDataProviders()
     ui->iNetChartView->setRenderHint(QPainter::Antialiasing);
 }
 
+
+
 // ========== HYDRO SECTION (Amro) ==========
 
 void MainWindow::initHydroWindow()
@@ -162,11 +164,13 @@ void MainWindow::initHydroWindow()
     ui->hydroTableWidget->setHorizontalHeaderLabels(QStringList() << "Provider" << "Rate");
 
     ui->hydroBillTableWidget->setColumnCount(4);
-    ui->hydroBillTableWidget->setHorizontalHeaderLabels(QStringList() << "Service" << "Date" << "Amount" << "Status");
+    ui->hydroBillTableWidget->setHorizontalHeaderLabels(QStringList() << "Customer" << "Date" << "Amount" << "Status");
 }
 
 void MainWindow::updateHydroDataProviders()
 {
+    updateHydroCustomerBillsByService();
+
     vector<Provider> providers = dataProvider.getProviders();
     ui->hydroTableWidget->setRowCount(0);
 
@@ -193,61 +197,53 @@ void MainWindow::updateHydroDataProviders()
     }
 }
 
-void MainWindow::populateHydroCustomerBox()
+void MainWindow::updateHydroCustomerBillsByService()
 {
-    ui->hydroCustomerBox->clear();
-    for (const auto& [id, customer] : dataProvider.getCustomers()) {
-        QString label = QString("ID %1 - %2").arg(id).arg(QString::fromStdString(customer.name));
-        ui->hydroCustomerBox->addItem(label, id);
-    }
-}
+    ui->hydroBillTableWidget->setRowCount(0);
 
-// ========== Hydro Section (Amro) ==========
-void MainWindow::displayHydroBillsForCustomer()
-{
-    ui->hydroBillTableWidget->setRowCount(0);  // Clear existing bills
+    map<int, UtilityType> utilityTypes = {
+        {0, UtilityType::HydroElectric},
+        {1, UtilityType::HydroWater},
+        {2, UtilityType::HydroSewerage}
+    };
 
-    int customerIndex = ui->hydroCustomerBox->currentIndex();
-    if (customerIndex < 0) return;
+    int selectedIndex = ui->hydroComboBox->currentIndex();
+    if (selectedIndex < 0) return;
+    UtilityType selectedType = utilityTypes[selectedIndex];
 
-    int customerId = ui->hydroCustomerBox->itemData(customerIndex).toInt();
+    auto now = std::chrono::system_clock::now();
     const auto& customers = dataProvider.getCustomers();
-    auto it = customers.find(customerId);
-    if (it == customers.end()) return;
 
-    const Customer& customer = it->second;
-
-    for (const Subscription& sub : customer.subscriptions)
+    for (const auto& [id, customer] : customers)
     {
-        if (sub.service.type == UtilityType::HydroElectric ||
-            sub.service.type == UtilityType::HydroWater ||
-            sub.service.type == UtilityType::HydroSewerage)
+        for (const Subscription& sub : customer.subscriptions)
         {
-            QString serviceName =
-                sub.service.type == UtilityType::HydroElectric ? "Electric" :
-                    sub.service.type == UtilityType::HydroWater ? "Water" : "Sewerage";
-
-            for (const Bill& bill : sub.bills)
+            if (sub.service.type == selectedType)
             {
-                std::time_t issue = std::chrono::system_clock::to_time_t(bill.issueDate);
-                QString dateStr = QString::fromStdString(std::string(std::ctime(&issue))).trimmed();
-                QString statusStr = bill.isPaid ? "Paid" :
-                                        (bill.isOverDue(std::chrono::system_clock::now()) ? "Overdue" : "Unpaid");
+                for (const Bill& bill : sub.bills)
+                {
+                    int row = ui->hydroBillTableWidget->rowCount();
+                    ui->hydroBillTableWidget->insertRow(row);
 
-                int row = ui->hydroBillTableWidget->rowCount();
-                ui->hydroBillTableWidget->insertRow(row);
+                    QString name = QString::fromStdString(customer.name);
+                    std::time_t issue = std::chrono::system_clock::to_time_t(bill.issueDate);
+                    QString dateStr = QString::fromStdString(std::string(std::ctime(&issue))).trimmed();
+                    QString statusStr = bill.isPaid ? "✅ Paid" :
+                                            (bill.isOverDue(now) ? "❌ Overdue" : "⌛ Unpaid");
 
-                ui->hydroBillTableWidget->setItem(row, 0, new QTableWidgetItem(serviceName));
-                ui->hydroBillTableWidget->setItem(row, 1, new QTableWidgetItem(dateStr));
-                ui->hydroBillTableWidget->setItem(row, 2, new QTableWidgetItem(QString("$%1").arg(bill.amount, 0, 'f', 2)));
-                ui->hydroBillTableWidget->setItem(row, 3, new QTableWidgetItem(statusStr));
+                    ui->hydroBillTableWidget->setItem(row, 0, new QTableWidgetItem(name));
+                    ui->hydroBillTableWidget->setItem(row, 1, new QTableWidgetItem(dateStr));
+                    ui->hydroBillTableWidget->setItem(row, 2, new QTableWidgetItem(QString("$%1").arg(bill.amount, 0, 'f', 2)));
+                    ui->hydroBillTableWidget->setItem(row, 3, new QTableWidgetItem(statusStr));
+                }
             }
         }
     }
 }
 
-
 // ========== END HYDRO SECTION (Amro) ==========
+
+
 
 // PAGE NAVIGATION
 
