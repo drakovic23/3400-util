@@ -36,7 +36,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     // Initialize both internet and hydro tabs
     initInetWindow();
-    //initHydroWindow();
+    initHydroWindow();
 
     //connect(ui->inetComboBox, &QComboBox::currentTextChanged, this, &MainWindow::updateInetDataProviders);
     connect(ui->hydroComboBox, &QComboBox::currentTextChanged, this, &MainWindow::updateHydroDataProviders);

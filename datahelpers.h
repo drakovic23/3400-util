@@ -37,22 +37,16 @@ public:
 
     Provider(int pid, const std::string& pname) : id(pid), name(pname) {}
 
-    void initServices()
+    void initServices() //TODO: Overload or adjust for different rates
     {
-        auto randRate = [](double min, double max) {
-            return min + static_cast<double>(rand()) / RAND_MAX * (max - min);
-        };
-
-        services[UtilityType::NaturalGas] = {UtilityType::NaturalGas, randRate(4.0, 8.0)};
-        services[UtilityType::InternetTV] = {UtilityType::InternetTV, randRate(8.0, 15.0)};
-        services[UtilityType::InternetMobile] = {UtilityType::InternetMobile, randRate(6.0, 12.0)};
-        services[UtilityType::InternetHomePhone] = {UtilityType::InternetHomePhone, randRate(5.0, 10.0)};
-        services[UtilityType::HydroElectric] = {UtilityType::HydroElectric, randRate(12.0, 20.0)};
-        services[UtilityType::HydroWater] = {UtilityType::HydroWater, randRate(10.0, 18.0)};
-        services[UtilityType::HydroSewerage] = {UtilityType::HydroSewerage, randRate(5.0, 12.0)};
+        services[UtilityType::NaturalGas] = {UtilityType::NaturalGas, 5.1};
+        services[UtilityType::InternetTV] = {UtilityType::InternetTV, 10.20};
+        services[UtilityType::InternetMobile] = {UtilityType::InternetMobile, 8.25};
+        services[UtilityType::InternetHomePhone] = {UtilityType::InternetHomePhone, 7.22};
+        services[UtilityType::HydroElectric] = {UtilityType::HydroElectric, 15.43};
+        services[UtilityType::HydroWater] = {UtilityType::HydroWater, 12.99};
+        services[UtilityType::HydroSewerage] = {UtilityType::HydroSewerage, 6.88};
     }
-
-
 };
 
 class Bill
@@ -79,11 +73,11 @@ public:
 class Subscription
 {
 public:
-    Provider* provider; //The provider for this service/subscription
+    Provider provider; //The provider for this service/subscription
     UtilityService service;
     vector<Bill> bills; //A vector holding billings for this subscription
 
-    Subscription(Provider* prov, const UtilityService &serv)
+    Subscription(Provider prov, const UtilityService &serv)
         : provider(prov), service(serv){}
 
     void addBill(const Bill& bill)
@@ -106,4 +100,3 @@ public:
 };
 
 #endif // DATAHELPERS_H
-
