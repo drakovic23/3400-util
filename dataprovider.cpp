@@ -106,15 +106,15 @@ Customer DataProvider::findCustomer(int id)
 }
 
 map<UtilityType, string> DataProvider::utilitiesAsString =
-{
-    {UtilityType::HydroElectric, "Electricity"},
-    {UtilityType::HydroSewerage, "Sewerage"},
-    {UtilityType::HydroWater, "Water"},
-    {UtilityType::InternetHomePhone, "Home Phone"},
-    {UtilityType::InternetMobile, "Mobile Phone"},
-    {UtilityType::InternetTV, "TV"},
-    {UtilityType::NaturalGas, "Natural Gas"},
-};
+    {
+        {UtilityType::HydroElectric, "Electricity"},
+        {UtilityType::HydroSewerage, "Sewerage"},
+        {UtilityType::HydroWater, "Water"},
+        {UtilityType::InternetHomePhone, "Home Phone"},
+        {UtilityType::InternetMobile, "Mobile Phone"},
+        {UtilityType::InternetTV, "TV"},
+        {UtilityType::NaturalGas, "Natural Gas"},
+        };
 // Returns the given enum type as a string
 string DataProvider::getUtilityAsString(UtilityType type)
 {

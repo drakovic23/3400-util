@@ -100,4 +100,3 @@ public:
 };
 
 #endif // DATAHELPERS_H
-
