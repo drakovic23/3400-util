@@ -114,18 +114,28 @@
        </widget>
       </widget>
       <widget class="QWidget" name="page_2">
+       <widget class="QComboBox" name="hydroComboBox">
+        <property name="geometry">
+         <rect>
+          <x>0</x>
+          <y>10</y>
+          <width>321</width>
+          <height>28</height>
+         </rect>
+        </property>
+       </widget>
        <widget class="QTableWidget" name="hydroBillTableWidget">
         <property name="geometry">
          <rect>
-          <x>280</x>
+          <x>380</x>
           <y>40</y>
-          <width>751</width>
+          <width>651</width>
           <height>471</height>
          </rect>
         </property>
         <column>
          <property name="text">
-          <string>Service</string>
+          <string>Customer</string>
          </property>
         </column>
         <column>
@@ -149,7 +159,7 @@
          <rect>
           <x>0</x>
           <y>40</y>
-          <width>261</width>
+          <width>381</width>
           <height>471</height>
          </rect>
         </property>
@@ -163,16 +173,11 @@
           <string>Rate</string>
          </property>
         </column>
-       </widget>
-       <widget class="QComboBox" name="hydroComboBox">
-        <property name="geometry">
-         <rect>
-          <x>0</x>
-          <y>10</y>
-          <width>261</width>
-          <height>28</height>
-         </rect>
-        </property>
+        <column>
+         <property name="text">
+          <string>Total Sales</string>
+         </property>
+        </column>
        </widget>
       </widget>
       <widget class="QWidget" name="page_3">

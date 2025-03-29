@@ -57,28 +57,25 @@ DataProvider::DataProvider()
 
     std::uniform_real_distribution<float> amountDist(100.0f, 500.0f);
     //Adding some bills to customers
-    for(size_t i = 0;i < 100;i++)
+    for (size_t i = 0; i < 100; i++)
     {
-        for(size_t j = 0;j < customers[i].subscriptions.size();j++)
+        for (size_t j = 0; j < customers[i].subscriptions.size(); j++)
         {
             auto today = std::chrono::system_clock::now();
             float randomAmount = amountDist(gen);
-            if(i % 2 == 0)
-            {
-                auto thirtyDaysAgo = today - std::chrono::hours(24 * 30);
-                Bill newBill(thirtyDaysAgo, randomAmount);
-                customers[i].subscriptions[j].addBill(newBill);
-            }
-            else
-            {
-                auto sixtyDaysAgo = today - std::chrono::hours(24 * 60);
-                Bill newBill(sixtyDaysAgo, randomAmount);
-                newBill.isPaid = true;
-                customers[i].subscriptions[j].addBill(newBill);
-            }
+
+            bool makePaid = (i % 2 != 0) || j == 0; // Always make the first bill paid
+
+            auto issueDate = today - std::chrono::hours(24 * (makePaid ? 30 : 60));
+            auto dueDate   = today - std::chrono::hours(24 * (makePaid ? 10 : 30));
+            Bill newBill(issueDate, dueDate, randomAmount);
+            newBill.isPaid = makePaid;
+            customers[i].subscriptions[j].addBill(newBill);
 
         }
     }
+
+
 
     this->customers = customers;
 }

@@ -42,7 +42,6 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->hydroComboBox, &QComboBox::currentTextChanged, this, &MainWindow::updateHydroDataProviders);
 
 
-
 }
 
 MainWindow::~MainWindow()
@@ -151,8 +150,6 @@ void MainWindow::updateInetDataProviders()
     ui->iNetChartView->setRenderHint(QPainter::Antialiasing);
 }
 
-
-
 // ========== HYDRO SECTION (Amro) ==========
 
 void MainWindow::initHydroWindow()
@@ -160,8 +157,8 @@ void MainWindow::initHydroWindow()
     QStringList hydroOptions = {"Electric", "Water", "Sewerage"};
     ui->hydroComboBox->addItems(hydroOptions);
 
-    ui->hydroTableWidget->setColumnCount(2);
-    ui->hydroTableWidget->setHorizontalHeaderLabels(QStringList() << "Provider" << "Rate");
+    ui->hydroTableWidget->setColumnCount(3);
+    ui->hydroTableWidget->setHorizontalHeaderLabels(QStringList() << "Provider" << "Rate" << "Total Sales");
 
     ui->hydroBillTableWidget->setColumnCount(4);
     ui->hydroBillTableWidget->setHorizontalHeaderLabels(QStringList() << "Customer" << "Date" << "Amount" << "Status");
@@ -169,8 +166,6 @@ void MainWindow::initHydroWindow()
 
 void MainWindow::updateHydroDataProviders()
 {
-    updateHydroCustomerBillsByService();
-
     vector<Provider> providers = dataProvider.getProviders();
     ui->hydroTableWidget->setRowCount(0);
 
@@ -194,7 +189,10 @@ void MainWindow::updateHydroDataProviders()
 
         ui->hydroTableWidget->setItem(row, 0, providerItem);
         ui->hydroTableWidget->setItem(row, 1, rateItem);
+    QTableWidgetItem* totalSalesItem = new QTableWidgetItem(QString("$%1").arg(calculateTotalSales(provider.id, type), 0, 'f', 2));
+    ui->hydroTableWidget->setItem(row, 2, totalSalesItem);
     }
+    updateHydroCustomerBillsByService();
 }
 
 void MainWindow::updateHydroCustomerBillsByService()
@@ -236,14 +234,16 @@ void MainWindow::updateHydroCustomerBillsByService()
                     ui->hydroBillTableWidget->setItem(row, 2, new QTableWidgetItem(QString("$%1").arg(bill.amount, 0, 'f', 2)));
                     ui->hydroBillTableWidget->setItem(row, 3, new QTableWidgetItem(statusStr));
                 }
+
+
             }
         }
     }
 }
 
+
+
 // ========== END HYDRO SECTION (Amro) ==========
-
-
 
 // PAGE NAVIGATION
 
@@ -434,4 +434,26 @@ void MainWindow::on_HydroTriggered()
 void MainWindow::on_InternetTriggered()
 {
     ui->stackedWidget->setCurrentIndex(2);
+}
+
+
+double MainWindow::calculateTotalSales(int providerId, UtilityType type)
+{
+    double total = 0.0;
+    auto customers = dataProvider.getCustomers();
+    for (const auto& [id, customer] : customers)
+    {
+        for (const Subscription& sub : customer.subscriptions)
+        {
+            if (sub.provider.id == providerId && sub.service.type == type)
+            {
+                for (const Bill& bill : sub.bills)
+                {
+                    if (bill.isPaid)
+                        total += bill.amount;
+                }
+            }
+        }
+    }
+    return total;
 }

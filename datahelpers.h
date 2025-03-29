@@ -55,20 +55,28 @@ public:
     std::chrono::system_clock::time_point issueDate;
     std::chrono::system_clock::time_point dueDate;
 
-    double amount; //Amount to be paid
+    double amount;  // Amount to be paid
     bool isPaid;
 
+    // Existing constructor
     Bill(std::chrono::system_clock::time_point issueDate, double amt)
         : issueDate(issueDate), amount(amt)
     {
         dueDate = issueDate + std::chrono::hours(24 * 30);
     }
 
+    // ✅ New constructor
+    Bill(std::chrono::system_clock::time_point issueDate,
+         std::chrono::system_clock::time_point dueDate,
+         double amt)
+        : issueDate(issueDate), dueDate(dueDate), amount(amt), isPaid(false) {}
+
     bool isOverDue(std::chrono::system_clock::time_point currentDate) const
     {
         return !isPaid && (currentDate > dueDate);
     }
 };
+
 
 class Subscription
 {
