@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1060</width>
-    <height>590</height>
+    <height>600</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -24,7 +24,7 @@
     <item>
      <widget class="QStackedWidget" name="stackedWidget">
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="page">
        <widget class="QLabel" name="label">
@@ -114,15 +114,71 @@
        </widget>
       </widget>
       <widget class="QWidget" name="page_2">
-       <layout class="QGridLayout" name="gridLayout_2">
-        <item row="0" column="0">
-         <widget class="QLabel" name="label_2">
-          <property name="text">
-           <string>Hydro Window</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
+       <widget class="QComboBox" name="hydroComboBox">
+        <property name="geometry">
+         <rect>
+          <x>0</x>
+          <y>10</y>
+          <width>321</width>
+          <height>28</height>
+         </rect>
+        </property>
+       </widget>
+       <widget class="QTableWidget" name="hydroBillTableWidget">
+        <property name="geometry">
+         <rect>
+          <x>380</x>
+          <y>40</y>
+          <width>651</width>
+          <height>471</height>
+         </rect>
+        </property>
+        <column>
+         <property name="text">
+          <string>Customer</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>Date</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>Amount</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>Status</string>
+         </property>
+        </column>
+       </widget>
+       <widget class="QTableWidget" name="hydroTableWidget">
+        <property name="geometry">
+         <rect>
+          <x>0</x>
+          <y>40</y>
+          <width>381</width>
+          <height>471</height>
+         </rect>
+        </property>
+        <column>
+         <property name="text">
+          <string>Provider</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>Rate</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>Total Sales</string>
+         </property>
+        </column>
+       </widget>
       </widget>
       <widget class="QWidget" name="page_3">
        <layout class="QGridLayout" name="gridLayout_3">
@@ -267,11 +323,11 @@
   <customwidget>
    <class>QChartView</class>
    <extends>QWidget</extends>
-   <header>QtCharts/QChartView</header>
-   <container>1</container>
+   <header>qchartview.h</header>
   </customwidget>
  </customwidgets>
  <resources>
+  <include location="resources.qrc"/>
   <include location="resources.qrc"/>
  </resources>
  <connections/>

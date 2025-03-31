@@ -22,7 +22,7 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    //Connect our toolbar buttons
+
     connect(ui->actionNatGas, &QAction::triggered, this, &MainWindow::on_NatGasTriggered);
     connect(ui->actionHydro, &QAction::triggered, this, &MainWindow::on_HydroTriggered);
     connect(ui->actionInternetService, &QAction::triggered, this, &MainWindow::on_InternetTriggered);
@@ -34,8 +34,14 @@ MainWindow::MainWindow(QWidget *parent)
     DataProvider mainDataProvider{};
     this->dataProvider = mainDataProvider;
 
-    //Initialize the internet page
+    // Initialize both internet and hydro tabs
     initInetWindow();
+    initHydroWindow();
+
+    //connect(ui->inetComboBox, &QComboBox::currentTextChanged, this, &MainWindow::updateInetDataProviders);
+    connect(ui->hydroComboBox, &QComboBox::currentTextChanged, this, &MainWindow::updateHydroDataProviders);
+
+
 }
 
 MainWindow::~MainWindow()
@@ -59,6 +65,7 @@ void MainWindow::updateInetDataProviders()
     };
     int selectedIndex = ui->inetComboBox->currentIndex();
 
+    //int selectedIndex = ui->inetComboBox->currentIndex();
     UtilityType type = utilityTypes[selectedIndex];
     //Populate the table widget
     for (const Provider &provider : providers)
@@ -67,12 +74,11 @@ void MainWindow::updateInetDataProviders()
         ui->inetTableWidget->insertRow(row);
 
         QTableWidgetItem *providerItem = new QTableWidgetItem(QString::fromStdString(provider.name));
-        QTableWidgetItem *rateItem = new QTableWidgetItem(QString("$%4").arg(provider.services.at(type).meterRate));
+        QTableWidgetItem *rateItem = new QTableWidgetItem(QString("$%1").arg(provider.services.at(type).meterRate));
 
         ui->inetTableWidget->setItem(row, 0, providerItem);
         ui->inetTableWidget->setItem(row, 1, rateItem);
     }
-
     // Get sales for this service type and provider
     map<int, float> providerSales; //Provider id -> total sales for selected service type
     map<int, Customer> customers = dataProvider.getCustomers();
@@ -143,6 +149,104 @@ void MainWindow::updateInetDataProviders()
     ui->iNetChartView->setChart(chart);
     ui->iNetChartView->setRenderHint(QPainter::Antialiasing);
 }
+
+// ========== HYDRO SECTION (Amro) ==========
+
+void MainWindow::initHydroWindow()
+{
+    QStringList hydroOptions = {"Electric", "Water", "Sewerage"};
+    ui->hydroComboBox->addItems(hydroOptions);
+
+    ui->hydroTableWidget->setColumnCount(3);
+    ui->hydroTableWidget->setHorizontalHeaderLabels(QStringList() << "Provider" << "Rate" << "Total Sales");
+
+    ui->hydroBillTableWidget->setColumnCount(4);
+    ui->hydroBillTableWidget->setHorizontalHeaderLabels(QStringList() << "Customer" << "Date" << "Amount" << "Status");
+}
+
+void MainWindow::updateHydroDataProviders()
+{
+    vector<Provider> providers = dataProvider.getProviders();
+    ui->hydroTableWidget->setRowCount(0);
+
+    map<int, UtilityType> utilityTypes =
+        {
+            {0, UtilityType::HydroElectric},
+            {1, UtilityType::HydroWater},
+            {2, UtilityType::HydroSewerage}
+        };
+
+    int selectedIndex = ui->hydroComboBox->currentIndex();
+    UtilityType type = utilityTypes[selectedIndex];
+
+    for (const Provider& provider : providers)
+    {
+        int row = ui->hydroTableWidget->rowCount();
+        ui->hydroTableWidget->insertRow(row);
+
+        QTableWidgetItem* providerItem = new QTableWidgetItem(QString::fromStdString(provider.name));
+        QTableWidgetItem* rateItem = new QTableWidgetItem(QString("$%1").arg(provider.services.at(type).meterRate));
+
+        ui->hydroTableWidget->setItem(row, 0, providerItem);
+        ui->hydroTableWidget->setItem(row, 1, rateItem);
+    QTableWidgetItem* totalSalesItem = new QTableWidgetItem(QString("$%1").arg(calculateTotalSales(provider.id, type), 0, 'f', 2));
+    ui->hydroTableWidget->setItem(row, 2, totalSalesItem);
+    }
+    updateHydroCustomerBillsByService();
+}
+
+void MainWindow::updateHydroCustomerBillsByService()
+{
+    ui->hydroBillTableWidget->setRowCount(0);
+
+    map<int, UtilityType> utilityTypes = {
+        {0, UtilityType::HydroElectric},
+        {1, UtilityType::HydroWater},
+        {2, UtilityType::HydroSewerage}
+    };
+
+    int selectedIndex = ui->hydroComboBox->currentIndex();
+    if (selectedIndex < 0) return;
+    UtilityType selectedType = utilityTypes[selectedIndex];
+
+    auto now = std::chrono::system_clock::now();
+    const auto& customers = dataProvider.getCustomers();
+
+    for (const auto& [id, customer] : customers)
+    {
+        for (const Subscription& sub : customer.subscriptions)
+        {
+            if (sub.service.type == selectedType)
+            {
+                for (const Bill& bill : sub.bills)
+                {
+                    int row = ui->hydroBillTableWidget->rowCount();
+                    ui->hydroBillTableWidget->insertRow(row);
+
+                    QString name = QString::fromStdString(customer.name);
+                    std::time_t issue = std::chrono::system_clock::to_time_t(bill.issueDate);
+                    QString dateStr = QString::fromStdString(std::string(std::ctime(&issue))).trimmed();
+                    QString statusStr = bill.isPaid ? "✅ Paid" :
+                                            (bill.isOverDue(now) ? "❌ Overdue" : "⌛ Unpaid");
+
+                    ui->hydroBillTableWidget->setItem(row, 0, new QTableWidgetItem(name));
+                    ui->hydroBillTableWidget->setItem(row, 1, new QTableWidgetItem(dateStr));
+                    ui->hydroBillTableWidget->setItem(row, 2, new QTableWidgetItem(QString("$%1").arg(bill.amount, 0, 'f', 2)));
+                    ui->hydroBillTableWidget->setItem(row, 3, new QTableWidgetItem(statusStr));
+                }
+
+
+            }
+        }
+    }
+}
+
+
+
+// ========== END HYDRO SECTION (Amro) ==========
+
+// PAGE NAVIGATION
+
 
 //For the context menu in the customer table widget
 void MainWindow::showInetCustomerContext(const QPoint &pos)
@@ -324,12 +428,32 @@ void MainWindow::on_NatGasTriggered()
 
 void MainWindow::on_HydroTriggered()
 {
-
     ui->stackedWidget->setCurrentIndex(1);
 }
 
 void MainWindow::on_InternetTriggered()
 {
-
     ui->stackedWidget->setCurrentIndex(2);
+}
+
+
+double MainWindow::calculateTotalSales(int providerId, UtilityType type)
+{
+    double total = 0.0;
+    auto customers = dataProvider.getCustomers();
+    for (const auto& [id, customer] : customers)
+    {
+        for (const Subscription& sub : customer.subscriptions)
+        {
+            if (sub.provider.id == providerId && sub.service.type == type)
+            {
+                for (const Bill& bill : sub.bills)
+                {
+                    if (bill.isPaid)
+                        total += bill.amount;
+                }
+            }
+        }
+    }
+    return total;
 }
