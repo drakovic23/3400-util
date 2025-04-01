@@ -25,18 +25,15 @@ private slots:
 
     void updateInetDataProviders();
     void showInetCustomerContext(const QPoint &pos);
+    void initInetWindow();
 
     void updateNatGasProviders();
     void updateNatGasBillingTable();
 
-    void initInetWindow();
-
-    // ========== HYDRO SECTION (Amro) ==========
     void initHydroWindow();
     void updateHydroDataProviders();
     void updateHydroCustomerBillsByService();
     double calculateTotalSales(int providerId, UtilityType type);
-    // ========== END HYDRO SECTION ==========
 
 private:
     Ui::MainWindow *ui;

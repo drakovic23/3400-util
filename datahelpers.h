@@ -7,8 +7,6 @@
 #include <chrono>
 #include <random>
 
-
-
 using namespace std;
 
 enum class UtilityType
@@ -37,7 +35,7 @@ public:
 
     Provider(int pid, const std::string& pname) : id(pid), name(pname) {}
 
-    void initServices() //TODO: Overload or adjust for different rates
+    void initServices()
     {
         services[UtilityType::NaturalGas] = {UtilityType::NaturalGas, 5.1};
         services[UtilityType::InternetTV] = {UtilityType::InternetTV, 10.20};
@@ -58,14 +56,12 @@ public:
     double amount;  // Amount to be paid
     bool isPaid;
 
-    // Existing constructor
     Bill(std::chrono::system_clock::time_point issueDate, double amt)
         : issueDate(issueDate), amount(amt)
     {
         dueDate = issueDate + std::chrono::hours(24 * 30);
     }
 
-    // ✅ New constructor
     Bill(std::chrono::system_clock::time_point issueDate,
          std::chrono::system_clock::time_point dueDate,
          double amt)

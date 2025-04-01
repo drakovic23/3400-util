@@ -23,6 +23,7 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
+    //Connect the toolbar to triggers
     connect(ui->actionNatGas, &QAction::triggered, this, &MainWindow::on_NatGasTriggered);
     connect(ui->actionHydro, &QAction::triggered, this, &MainWindow::on_HydroTriggered);
     connect(ui->actionInternetService, &QAction::triggered, this, &MainWindow::on_InternetTriggered);
@@ -65,7 +66,6 @@ void MainWindow::updateInetDataProviders()
     };
     int selectedIndex = ui->inetComboBox->currentIndex();
 
-    //int selectedIndex = ui->inetComboBox->currentIndex();
     UtilityType type = utilityTypes[selectedIndex];
     //Populate the table widget
     for (const Provider &provider : providers)
@@ -239,14 +239,7 @@ void MainWindow::updateHydroCustomerBillsByService()
             }
         }
     }
-}
-
-
-
-// ========== END HYDRO SECTION (Amro) ==========
-
-// PAGE NAVIGATION
-
+} // Hydro
 
 //For the context menu in the customer table widget
 void MainWindow::showInetCustomerContext(const QPoint &pos)

@@ -6,7 +6,7 @@ DataProvider::DataProvider()
 {
     //Initialize our customer data
     vector<Provider> providers =
-        { //TODO: Change names to something more realistic
+        {
          Provider(1, "Provider 1"),
          Provider(2, "Provider 2"),
          Provider(3, "Provider 3"),
