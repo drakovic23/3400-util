@@ -1,5 +1,6 @@
 #include "dataprovider.h"
 #include <random> // Used to generate random data
+#include <stdexcept>
 
 //Default constructor generates the customer and provider information
 DataProvider::DataProvider()
@@ -94,9 +95,8 @@ Customer DataProvider::findCustomer(int id)
 {
     if(customers.find(id) == customers.end())
     {
-        //Need to throw an exception here or something
-        Customer blankCustomer;
-        return blankCustomer;
+        //Throw exception if customer is not found
+        throw out_of_range("Customer ID: " + std::to_string(id) + " not found.");
     }
 
     return customers[id];

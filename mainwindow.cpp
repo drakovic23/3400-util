@@ -13,6 +13,7 @@
 #include <QStringList>
 #include <QDateTime>
 #include <QMenu>
+#include <QMessageBox>
 #include "./ui_mainwindow.h"
 #include "./datahelpers.h"
 #include "./customerdetailsdialog.h"
@@ -258,10 +259,17 @@ void MainWindow::showInetCustomerContext(const QPoint &pos)
         int row = ui->inetCustomerTable->row(item); //Need this to get the customer name
         QTableWidgetItem *tableItem = ui->inetCustomerTable->item(row, 0);
         int customerId = tableItem->data(Qt::UserRole).toInt();
-        CustomerDetailsDialog *dialog = new CustomerDetailsDialog(dataProvider.findCustomer(customerId), this);
-        //Display the dialog
-
-        dialog->exec();
+        try
+        {
+            CustomerDetailsDialog *dialog = new CustomerDetailsDialog(dataProvider.findCustomer(customerId), this);
+            dialog->exec();
+        }
+        catch (const std::out_of_range &ex)
+        {
+            //If customer not found there's some internal data error
+            //Display a warning box and do not display dialog
+            QMessageBox::warning(this, "Customer Not Found", ex.what());
+        }
     }
 }
 
