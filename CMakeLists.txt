@@ -28,6 +28,7 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         dataprovider.cpp
         dataprovider.h
         customerdetailsdialog.h customerdetailsdialog.cpp customerdetailsdialog.ui
+        addcustomerdialog.h addcustomerdialog.cpp addcustomerdialog.ui
 
     )
 # Define target properties for Android with Qt 6 as:

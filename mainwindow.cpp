@@ -17,6 +17,7 @@
 #include "./ui_mainwindow.h"
 #include "./datahelpers.h"
 #include "./customerdetailsdialog.h"
+#include "./addcustomerdialog.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -28,6 +29,8 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->actionNatGas, &QAction::triggered, this, &MainWindow::on_NatGasTriggered);
     connect(ui->actionHydro, &QAction::triggered, this, &MainWindow::on_HydroTriggered);
     connect(ui->actionInternetService, &QAction::triggered, this, &MainWindow::on_InternetTriggered);
+    connect(ui->actionAddCustomer, &QAction::triggered, this, &MainWindow::openAddCustomerDialog);
+
     //Connect the dropdown on the inet page
     connect(ui->inetComboBox, &QComboBox::currentTextChanged,this, &MainWindow::updateInetDataProviders);
     //Connect the customer table on the inet page to a custom context mnenu
@@ -457,4 +460,30 @@ double MainWindow::calculateTotalSales(int providerId, UtilityType type)
         }
     }
     return total;
+}
+
+void MainWindow::openAddCustomerDialog()
+{
+    AddCustomerDialog dialog(this);
+    if (dialog.exec() == QDialog::Accepted)
+    {
+        Customer newCustomer = dialog.getCreatedCustomer(dataProvider.getProviders());
+        int newId = static_cast<int>(dataProvider.getCustomers().size());
+        newCustomer.id = newId;
+
+        //add a bill so the customer shows up
+        auto now = std::chrono::system_clock::now();
+        Bill initialBill(now - std::chrono::hours(24 * 30), 350.0);
+        initialBill.isPaid = false;
+        if (!newCustomer.subscriptions.empty())
+            newCustomer.subscriptions[0].addBill(initialBill);
+
+        dataProvider.getCustomers()[newId] = newCustomer;
+
+        QMessageBox::information(this, "Customer Added", "Customer successfully added.");
+        updateHydroCustomerBillsByService();
+        updateNatGasBillingTable();
+        updateInetDataProviders();
+    }
+
 }

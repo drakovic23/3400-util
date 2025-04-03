@@ -12,8 +12,8 @@ private:
     static map<UtilityType, string> utilitiesAsString;
 public:
     DataProvider();
-    vector<Provider> getProviders();
-    map<int, Customer> getCustomers();
+    vector<Provider>& getProviders();
+    map<int, Customer>& getCustomers();
     Customer findCustomer(int id);
     static string getUtilityAsString(UtilityType type);
 };

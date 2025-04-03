@@ -34,6 +34,7 @@ private slots:
     void updateHydroDataProviders();
     void updateHydroCustomerBillsByService();
     double calculateTotalSales(int providerId, UtilityType type);
+    void openAddCustomerDialog();
 
 private:
     Ui::MainWindow *ui;

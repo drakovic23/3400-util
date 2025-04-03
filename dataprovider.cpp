@@ -81,12 +81,12 @@ DataProvider::DataProvider()
     this->customers = customers;
 }
 
-vector<Provider> DataProvider::getProviders()
+vector<Provider>& DataProvider::getProviders()
 {
     return providers;
 }
 
-map<int, Customer> DataProvider::getCustomers()
+map<int, Customer>& DataProvider::getCustomers()
 {
     return customers;
 }
